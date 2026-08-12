@@ -4,6 +4,24 @@ import { useState, useEffect } from 'react';
 const emptyVariant = () => ({ name: '', total: 1, selected: 1, thumb: '', drive: '', files: [] });
 const emptyFile = () => ({ n: '', s: '' });
 
+function Avatar({ size = 36 }) {
+  const [error, setError] = useState(false);
+  if (error) {
+    return (
+      <div className="avatar-fallback" style={{ width: size, height: size, fontSize: size * 0.42 }}>D</div>
+    );
+  }
+  return (
+    <img
+      src="/profile.jpg"
+      alt="dimz"
+      className="avatar-img"
+      style={{ width: size, height: size }}
+      onError={() => setError(true)}
+    />
+  );
+}
+
 function useOverlayAnim(open) {
   const [show, setShow] = useState(false);
   useEffect(() => {
@@ -211,13 +229,25 @@ export default function Page() {
   const variant = current?.variants?.[variantIdx];
   const filteredData = data.filter((c) => (c.category || 'character') === activeCategory);
 
-  if (loading) return <div className="loading">Loading…</div>;
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <Avatar size={72} />
+        <div className="loading-name">dimz</div>
+        <div className="loading-sub">Variant Gallery</div>
+        <div className="loading-spinner"></div>
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="topbar">
-        <div className="dot"></div>
-        <h1>Variant Gallery</h1>
+        <Avatar size={34} />
+        <div className="brand">
+          <h1>Variant Gallery</h1>
+          <div className="brand-by">by dimz</div>
+        </div>
         <div className="sub">
           {filteredData.length} items{saving ? ' · saving…' : ''}
         </div>
