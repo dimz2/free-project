@@ -4,20 +4,22 @@ import { useState, useEffect } from 'react';
 const emptyVariant = () => ({ name: '', total: 1, selected: 1, thumb: '', drive: '', files: [] });
 const emptyFile = () => ({ n: '', s: '' });
 
+const AVATAR_SOURCES = ['/profile.jpg', '/profile.png'];
+
 function Avatar({ size = 36 }) {
-  const [error, setError] = useState(false);
-  if (error) {
+  const [srcIndex, setSrcIndex] = useState(0);
+  if (srcIndex >= AVATAR_SOURCES.length) {
     return (
       <div className="avatar-fallback" style={{ width: size, height: size, fontSize: size * 0.42 }}>D</div>
     );
   }
   return (
     <img
-      src="/profile.jpg"
+      src={AVATAR_SOURCES[srcIndex]}
       alt="dimz"
       className="avatar-img"
       style={{ width: size, height: size }}
-      onError={() => setError(true)}
+      onError={() => setSrcIndex((i) => i + 1)}
     />
   );
 }
