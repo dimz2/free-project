@@ -23,6 +23,7 @@ export default function Page() {
   const [saving, setSaving] = useState(false);
 
   const [view, setView] = useState('grid');
+  const [activeCategory, setActiveCategory] = useState('character');
   const [currentId, setCurrentId] = useState(null);
   const [variantIdx, setVariantIdx] = useState(0);
   const detailShow = useOverlayAnim(view === 'detail');
@@ -120,9 +121,17 @@ export default function Page() {
     setEditingId(id || null);
     if (id) {
       const ch = data.find((c) => c.id === id);
-      setForm(JSON.parse(JSON.stringify(ch)));
+      setForm({ category: 'character', ...JSON.parse(JSON.stringify(ch)) });
     } else {
-      setForm({ name: '', eyebrow: 'CHARACTER', rarity: 'common', thumb: '', color: '#3a4a6b', variants: [emptyVariant()] });
+      setForm({
+        category: activeCategory,
+        name: '',
+        eyebrow: activeCategory === 'addon' ? 'ADDON' : 'CHARACTER',
+        rarity: 'common',
+        thumb: '',
+        color: '#3a4a6b',
+        variants: [emptyVariant()],
+      });
     }
     setShowForm(true);
   }
@@ -200,6 +209,7 @@ export default function Page() {
 
   const current = data.find((c) => c.id === currentId);
   const variant = current?.variants?.[variantIdx];
+  const filteredData = data.filter((c) => (c.category || 'character') === activeCategory);
 
   if (loading) return <div className="loading">Loading…</div>;
 
@@ -209,7 +219,7 @@ export default function Page() {
         <div className="dot"></div>
         <h1>Variant Gallery</h1>
         <div className="sub">
-          {data.length} items{saving ? ' · saving…' : ''}
+          {filteredData.length} items{saving ? ' · saving…' : ''}
         </div>
         <button className="icon-btn" onClick={() => (adminUnlocked ? lockAdmin() : setShowGate(true))} title="Admin">
           {adminUnlocked ? '🔓' : '⚙'}
@@ -218,16 +228,27 @@ export default function Page() {
 
       {adminUnlocked && (
         <div className="admin-bar">
-          <button className="btn btn-primary" onClick={() => openCharacterForm()}>+ Tambah Character</button>
+          <button className="btn btn-primary" onClick={() => openCharacterForm()}>
+            + Tambah {activeCategory === 'addon' ? 'Plugin/Addon' : 'Character'}
+          </button>
           <button className="btn btn-secondary" onClick={lockAdmin}>🔒 Keluar</button>
         </div>
       )}
 
       {view === 'grid' && (
         <div>
-          <div className="category-label">◆ CHARACTERS</div>
+          <div className="tabs">
+            <button
+              className={`tab ${activeCategory === 'character' ? 'active' : ''}`}
+              onClick={() => setActiveCategory('character')}
+            >◆ CHARACTERS</button>
+            <button
+              className={`tab ${activeCategory === 'addon' ? 'active' : ''}`}
+              onClick={() => setActiveCategory('addon')}
+            >◆ PLUGIN/ADDONS</button>
+          </div>
           <div className="grid">
-            {data.map((ch) => (
+            {filteredData.map((ch) => (
               <div
                 key={ch.id}
                 className={`card ${ch.rarity}`}
@@ -330,7 +351,14 @@ export default function Page() {
       {showForm && form && (
         <div className={`overlay active ${formShow ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}>
           <div className="sheet" style={{ maxHeight: '88vh', overflowY: 'auto' }}>
-            <h3>{editingId ? 'Edit Character' : 'Tambah Character'}</h3>
+            <h3>{editingId ? 'Edit' : 'Tambah'} {form.category === 'addon' ? 'Plugin/Addon' : 'Character'}</h3>
+            <div className="field">
+              <label>Kategori</label>
+              <select value={form.category} onChange={(e) => updateField('category', e.target.value)}>
+                <option value="character">Character</option>
+                <option value="addon">Plugin/Addons</option>
+              </select>
+            </div>
             <div className="field"><label>Nama</label><input value={form.name} onChange={(e) => updateField('name', e.target.value)} /></div>
             <div className="field"><label>Eyebrow / Kategori</label><input value={form.eyebrow} onChange={(e) => updateField('eyebrow', e.target.value)} /></div>
             <div style={{ display: 'flex', gap: 8 }}>
