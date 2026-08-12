@@ -1,0 +1,17 @@
+{
+  "name": "variant-gallery",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^16.2.7",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@upstash/redis": "^1.34.3"
+  }
+}
